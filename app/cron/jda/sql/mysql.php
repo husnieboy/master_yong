@@ -1,5 +1,6 @@
 <?php
-include_once('../../config/config.php');
+chdir(dirname(__FILE__));
+include_once('/app/cron/config/config.php');
 
 class pdoConnection
 {
@@ -96,7 +97,7 @@ class pdoConnection
 		$module 	= $data['module'];
 		$jdaAction 	= $data['jda_action'];
 
-		echo "\n Getting reference # from db \n";
+		echo "\n Getting reference # from database \n";
 
 		if(!empty($data['reference']))
 		{
@@ -271,11 +272,11 @@ class pdoConnection
 		return $result;
 	}
 
-	public function getReceiverNo($poNo) {
-		$poNo = join(',', $poNo);
+	public function getReceiverNo($Rcrno) {
+		$Rcrno = join(',', $Rcrno);
 		echo "\n Getting receiver no from db \n";
-		$sql 	= "SELECT receiver_no, back_order, slot_code, shipment_reference_no FROM wms_purchase_order_lists
-					WHERE purchase_order_no IN ({$poNo})
+		$sql 	= "SELECT receiver_no, purchase_order_no, invoice_no FROM wms_purchase_order_lists
+					WHERE receiver_no IN ({$Rcrno})
 					ORDER BY purchase_order_no ASC";
 		$query 	= self::query($sql);
 
@@ -283,9 +284,8 @@ class pdoConnection
 		foreach ($query as $value ) {
 			$result[] =  array(
 				'receiver_no' => $value['receiver_no'],
-				'back_order' => $value['back_order'],
-				'shipment_reference_no' => (empty($value['shipment_reference_no'])) ? '0' : $value['shipment_reference_no'],
-				'slot_code' => $value['slot_code']);
+				'purchase_order_no' => $value['purchase_order_no'],
+				'invoice_no' 		=> $value['invoice_no']);
 		}
 
 		return $result;
@@ -441,7 +441,7 @@ class pdoConnection
     	 
     	$filename=$source . "_" . date('m_d_y');
     	$outputfile = __DIR__.'/../../jda/logs/'.$filename.'.log';
-        $s =sprintf("%s >> %s 2>&1 & echo $! >> %s", $cmd, $outputfile, $pidfile);
+        $s =sprintf("%s >> %s 2>&1 & echo $!  >> %s", $cmd, $outputfile, $pidfile);
         echo $cmd;
         // exec($cmd . " </dev/null 2> /dev/null & echo $!");
         // exec($cmd . " > /dev/null &");

@@ -953,6 +953,26 @@ class StocktransferController extends \BaseController {
 
 			Box::assignToTLstock($assignTL, $loadnumber);
 			Box::assignToTLnumberboxstock($assignTL, $loadnumber);
+
+
+		/*	$users = User::getUsersFullname(Input::get('stock_piler')); 
+
+			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
+*/
+			$data_before = '';
+			$data_after ='Box no. : ' . $tlnumber . ', Assigned to Pell no. : ' . $loadnumber;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.subloc_loading"),
+							'action'		=> Config::get('audit_trail.assign_load'),
+							'reference'		=> 'Box no. : '. $tlnumber,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
  			}
 
 			return Redirect::to('stocktransfer/stocktranferload'. $this->setURL())->with('message', "Succefully Assigned in Load Number!");
@@ -1099,8 +1119,24 @@ class StocktransferController extends \BaseController {
 
 			Box::getremovedTLUpdatestock($assignTL, $loadnumber);
 			Box::getremovedTLstock($assignTL, $loadnumber);
- 			}
+ 			
+ 			$data_before = '';
+            $data_after = 'Box number : ' . $tlnumber .', Pell number : '. $loadnumber; // ', assign by : ' . Auth::user()->username;
 
+            $arrParams = array(
+                'module'		=> Config::get('audit_trail_modules.subloc_loading'),
+                'action'		=> Config::get('audit_trail.assign_remove'),
+                'reference'		=> 'Remove Box no. : '. $tlnumber. ', ',
+                'data_before'	=> $data_before,
+                'data_after'	=> $data_after,
+                'user_id'		=> Auth::user()->id,
+                'created_at'	=> date('Y-m-d H:i:s'),
+                'updated_at'	=> date('Y-m-d H:i:s')
+               
+            );
+
+        }
+            AuditTrail::addAuditTrail($arrParams);
 			return Redirect::to('stocktransfer/stocktranferload'. $this->setURL())->with('message', "Succefully Remove Box Number!");
 
 	}

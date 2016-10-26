@@ -69,7 +69,7 @@ return array(
 	'entry_so_no'			=> 'Store Return No.:',
 	'entry_stock_piler'			=> 'Stock Piler:',
 
-	'text_success_assign'		=> 'Successfully assigned the Store Return/s!',
+	'text_success_assign'		=> 'Successfully assigned the Return to Warehouse!',
 	'text_posted'			=> 'Posted',
 	'text_success_posted'		=> 'Successfully closed store return!',
 );

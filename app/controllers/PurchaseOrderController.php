@@ -188,7 +188,7 @@ protected function getListdivision() {
 		return Redirect::to('purchase_order')->with('message','Sync To Mobile Successfully');
 	}
 
-	public function synctdivision()
+/*	public function synctdivision()
 	{  
 		$po_no 					= Input::get('po_no', null);
 		$shipment_no 					= Input::get('shipment_no', null);
@@ -199,7 +199,7 @@ protected function getListdivision() {
 		//purchaseorder::getsynctomobiledivision($receiver_no, $division_id);
 		return Redirect::to('purchase_order/division?receiver_no=' .$receiver_no .'&filter_po_no='.$po_no.'&filter_shipment_reference_no='.$shipment_no .'&total_qty='. $total_qty)->with('message','Sync To Mobile Successfully');
  
-	}
+	}*/
 	public function synctomobiledivision()
 	{  
 		$po_no 					= Input::get('po_no', null);
@@ -207,8 +207,26 @@ protected function getListdivision() {
 		$total_qty 					= Input::get('total_qty', null);
 
 		$division_id  			= Input::get('division_id', null);
+		$division 				= Input::get('division',null);
 		$receiver_no 			= Input::get('receiver_no', null);
 		purchaseorder::getsynctomobiledivision();
+
+
+			$data_before = 'Assigned';
+			$data_after =  ' Sync to mobile Division no.: '. $division_id.', Recvr no.: '. $receiver_no;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.purchaseorder"),
+							'action'		=> Config::get("audit_trail.sync_to_mobile"),
+							'reference'		=>  'Division :'.$division_id,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
+
 
 		return Redirect::to('purchase_order/division?receiver_no=' .$receiver_no .'&filter_po_no='.$po_no.'&filter_shipment_reference_no='.$shipment_no .'&total_qty='. $total_qty)->with('message','Sync To Mobile Successfully');
  
@@ -243,7 +261,26 @@ protected function getListdivision() {
 
 		PurchaseOrderDetail::updateqty($quantity_delivered, $receiver_no, $division_id, $upc);
 
+			
+			$users = User::getUsersFullname(Input::get('stock_piler'));
 
+			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
+			// $user = User::find(Input::get('stock_piler'));
+
+			$data_before = '';
+			$data_after =  'UPC : '. $upc. ', Po no.: '. $filter_po_no.', Recvr no.: '. $receiver_no;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.purchaseorder"),
+							'action'		=> Config::get("audit_trail.Update_Quantity"),
+							'reference'		=>  'Quantity : ' . $quantity_delivered . ', UPC : '.$upc,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
  	
 		return Redirect::to('purchase_order/detail?&receiver_no='.$receiver_no.'&division_id='.$division_id.'&upc='.$upc.'&filter_po_no='.$filter_po_no.'&filter_stock_piler='.$filter_stock_piler.'&division='.$division.'&filter_shipment_reference_no='. $filter_shipment_reference_no )->with('message','Successfully Update Quantity');
 	}
@@ -256,6 +293,28 @@ protected function getListdivision() {
 	 
 		
 		PurchaseOrder::getMShipmentRef($purchase_order_no, $receiver_no, $shipment_ref);
+		
+		$users = User::getUsersFullname(Input::get('stock_piler'));
+
+
+			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
+			// $user = User::find(Input::get('stock_piler'));
+
+			$data_before = '';
+			$data_after = 'Shipment Referrence no : ' . $shipment_ref . ', PO no. : '.$purchase_order_no. ' Rcr no. : '.$receiver_no;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.purchaseorder"),
+							'action'		=> Config::get("audit_trail.Update_shipment"),
+							'reference'		=> 'Shipment Referrence no : ' . $shipment_ref,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
+
 		return Redirect::to('purchase_order')->with('message','Successfully Update Shipment Reference number!');
 	}
 
@@ -751,9 +810,9 @@ public function getPODetails() {
 		$data_after = 'Po no.: ' . $purchase_order_no .'Rcr no. : '.$receiver_no. ' Partial Received by ' . $user->username;
 
 		$arrParams = array(
-						'module'		=>  Config::get("audit_trail_modules.PO_partial"),
+						'module'		=>  Config::get("audit_trail_modules.purchaseorder"),
 						'action'		=> Config::get("audit_trail.partial_received"),
-						'reference'		=> $purchase_order_no,
+						'reference'		=> 'Parital Received no.: '.$purchase_order_no,
 						'data_before'	=> $data_before,
 						'data_after'	=> $data_after,
 						'user_id'		=> Auth::user()->id,
@@ -766,6 +825,85 @@ public function getPODetails() {
 		return Redirect::to('purchase_order'. $this->setURL())->with('message', 'Successfully Partial Received update at JDA!');
 	}
 	public function closePO()
+	{
+		// Check Permissions
+		// echo "<pre>"; print_r(Session::get('permissions')); die();
+		if (Session::has('permissions')) {
+	    	if (!in_array('CanClosePurchaseOrders', unserialize(Session::get('permissions'))))  {
+				return Redirect::to('user/profile');
+			}
+    	} else {
+			return Redirect::to('users/logout');
+		}
+
+		$receiver_no       = Input::get("receiver_no");
+		$purchase_order_no = Input::get("po_no");
+		 
+		$status            = 'closed'; // closed
+		$date_updated      = date('Y-m-d H:i:s');
+
+		PurchaseOrder::updatePO($receiver_no, $purchase_order_no, $status, $date_updated, '');
+		PurchaseOrderDetail::updateDivisionStatus($receiver_no);
+
+
+	/*	$skus = PurchaseOrderDetail::getScannedPODetails($receiver_no);
+
+		foreach($skus as $sku){
+			$data = array(
+				'sku' => $sku->upc,
+				'quantity_delivered' => $sku->quantity_delivered,
+				'quantity_remaining' => $sku->quantity_delivered
+			);
+			SkuOnDock::insertData($data);
+		}*/
+
+		// AuditTrail
+		$user = User::find(Auth::user()->id);
+
+		$data_before = '';
+		$data_after = 'PO No: ' . $purchase_order_no . ' Rcr no.'.$receiver_no.' closed by ' . $user->username;
+
+		$arrParams = array(
+						'module'		=> 'Purchase Order',
+						'action'		=> 'Closed PO',
+						'reference'		=> 'Purchase Order no. : '.$purchase_order_no,
+						'data_before'	=> $data_before,
+						'data_after'	=> $data_after,
+						'user_id'		=> Auth::user()->id,
+						'created_at'	=> date('Y-m-d H:i:s'),
+						'updated_at'	=> date('Y-m-d H:i:s')
+						);
+		AuditTrail::addAuditTrail($arrParams);
+		// AuditTrail
+
+		// Add transaction for jda syncing
+		$isSuccess = JdaTransaction::insert(array(
+			'module' 		=> Config::get('transactions.module_purchase_order'),
+			'jda_action'	=> Config::get('transactions.jda_action_po_closing'),
+			'reference'		=>  $receiver_no,
+
+		));
+		Log::info(__METHOD__ .' jda transaction dump: '.print_r($isSuccess,true));
+		// run daemon command: php app/cron/jda/classes/receive_po.php
+		if( $isSuccess )
+		{
+			$daemonReceivingClosingPo = "classes/receive_po.php {$receiver_no}";/*
+			$daemonReceivingClosingPo = "classes/receive_po.php {$purchase_order_no}";*/
+			CommonHelper::execInBackground($daemonReceivingClosingPo,'receive_po');
+		}
+
+		if (Input::get('module') == 'purchase_order_detail') {
+			$url = $this->setURL();
+			$url .= '&receiver_no=' . Input::get('receiver_no');
+			$url .= '&sort_back=' . Input::get('sort_back').'&order_back=' . Input::get('order_back') . '&page_back=' . Input::get('page_back');
+
+			return Redirect::to('purchase_order/detail' . $url)->with('message', Lang::get('purchase_order.text_success_close_po'));
+		} else {
+
+			return Redirect::to('purchase_order'. $this->setURL())->with('message', Lang::get('purchase_order.text_success_close_po'));
+		}
+	}
+	public function closePOsadfasdfasdfa()
 	{
 		// Check Permissions
 		// echo "<pre>"; print_r(Session::get('permissions')); die();
@@ -807,7 +945,7 @@ public function getPODetails() {
 		$arrParams = array(
 						'module'		=> 'Purchase Order',
 						'action'		=> 'Closed PO',
-						'reference'		=> $purchase_order_no,
+						'reference'		=> 'PO number'.$purchase_order_no,
 						'data_before'	=> $data_before,
 						'data_after'	=> $data_after,
 						'user_id'		=> Auth::user()->id,
@@ -821,14 +959,14 @@ public function getPODetails() {
 		$isSuccess = JdaTransaction::insert(array(
 			'module' 		=> Config::get('transactions.module_purchase_order'),
 			'jda_action'	=> Config::get('transactions.jda_action_po_closing'),
-			'reference'		=> $purchase_order_no, $receiving,
+			'reference'		=> 'PO number : '. $purchase_order_no.',  Rcr no. :  ' .$receiver_no,
 
 		));
 		Log::info(__METHOD__ .' jda transaction dump: '.print_r($isSuccess,true));
 		// run daemon command: php app/cron/jda/classes/receive_po.php
 		if( $isSuccess )
 		{
-			$daemonReceivingClosingPo = "classes/receive_po.php {$purchase_order_no}";
+			$daemonReceivingClosingPo = "classes/close_po.php {$receiver_no}";
 			CommonHelper::execInBackground($daemonReceivingClosingPo,'receive_po');
 		}
 
@@ -857,7 +995,7 @@ public function getPODetails() {
 
 		
 
-		$filter_po_no 			= Input::get('filter_po_no', null);
+		$po_no 			= Input::get('po_no', null);
 		$receiver_no 			= Input::get('receiver_no', null);
 
 		$arrParams = array(
@@ -874,7 +1012,7 @@ public function getPODetails() {
 							'limit'					=> NULL
 						);
 
-		$results = PurchaseOrder::getPoLists1($receiver_no, $arrParams);
+		$results = PurchaseOrder::getPoLists1($receiver_no, $po_no, $arrParams);
  
 
 		$output = Lang::get('purchase_order.col_po_no'). ',';
@@ -883,13 +1021,13 @@ public function getPODetails() {
 		$output .= Lang::get('purchase_order.col_sku'). ',';
 		$output .= Lang::get('purchase_order.col_upc'). ',';
 	 	$output .= Lang::get('purchase_order.col_short_name'). ',';
-	 	$output .= Lang::get('purchase_order.label_divisionasdf'). ',';
-
+	 	$output .= Lang::get('purchase_order.label_divisionasdf'). ','; 
 	 	$output .= Lang::get('purchase_order.col_stock_piler'). ',';
 		$output .= Lang::get('purchase_order.col_entry_date'). ',';
 			 	$output .= Lang::get('purchase_order.col_variance'). "\n";
 
-	    foreach ($results as $key => $value) {
+	    foreach ($results as $key => $value) 
+	    {
 	    	
 	   
 	    	$exportData = array(
@@ -898,20 +1036,18 @@ public function getPODetails() {
 	    						'"' . $value->receiver_no . '"',
 	    						'"' . $value->shipment_reference_no . '"',
 	    						'"' . $value->sku . '"',
-	    						'"' . $value->upc . '"',
-	    						'"' . $value->shortname . '"',
-	    						'"' . $value->division . '"',
-	    						'"' . $value->fullname . '"',
+	    						'"' . $value->upc . '"',   
 	    					  
-	    					
-	    						'"' . date("M d, Y", strtotime($value->created_at)) . '"',
-	    						'"' . $value->variance. '"',
+	    					  
 	    					 
 	    					);
 
 	      	$output .= implode(",", $exportData);
 	      	$output .= "\n";
 	  	}
+
+	  	$this->data['po_no']		= $po_no;
+	  	$this->data['receiver_no']	= $receiver_no;
 
 		$headers = array(
 			'Content-Type' => 'text/csv',
@@ -1287,6 +1423,7 @@ public function getPODetails() {
 		$filter_receiver_no = Input::get('filter_receiver_no', NULL);
 		$filter_entry_date  = Input::get('filter_entry_date', NULL);
 		$filter_stock_piler = Input::get('filter_stock_piler', NULL);
+		$filter_invoice_no 	= Input::get('filter_invoice_no', null);
 		$filter_status      = Input::get('filter_status', NULL);
 		$filter_back_order  = Input::get('filter_back_order', NULL);
 		$filter_brand       = Input::get('filter_brand', NULL);
@@ -1303,6 +1440,7 @@ public function getPODetails() {
 						'filter_receiver_no' => $filter_receiver_no,
 						'filter_entry_date'  => $filter_entry_date,
 						'filter_stock_piler' => $filter_stock_piler,
+						'filter_invoice_no'		=> $filter_invoice_no,
 						'filter_back_order'  => $filter_back_order,
 						'filter_status'      => $filter_status,
 						'filter_brand'       => $filter_brand,
@@ -1328,6 +1466,7 @@ public function getPODetails() {
 									'filter_shipment_reference_no'	=> $filter_shipment_reference_no,
 									'filter_entry_date'  => $filter_entry_date,
 									'filter_stock_piler' => $filter_stock_piler,
+									'filter_invoice_no'		=> $filter_invoice_no,
 									'filter_back_order'  => $filter_back_order,
 									'filter_status'      => $filter_status,
 									'filter_brand'       => $filter_brand,
@@ -1345,6 +1484,7 @@ public function getPODetails() {
 		$this->data['filter_entry_date']     = $filter_entry_date;
 		$this->data['filter_stock_piler']    = $filter_stock_piler;
 		$this->data['filter_status']         = $filter_status;
+		$this->data['filter_invoice_no']	 = $filter_invoice_no;
 		$this->data['filter_back_order']     = $filter_back_order;
 		$this->data['filter_brand']          = $filter_brand;
 		$this->data['filter_division']       = $filter_division;

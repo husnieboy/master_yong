@@ -21,16 +21,18 @@ class Load extends Eloquent {
     {
          
         $query=DB::table('load')
-            ->join('load_details','load.load_code','=','load_details.load_code','RIGHT')
-            ->where('load.data_value', 0)
+            ->join('load_details','load.load_code','=','load_details.load_code','left')
+            ->where('load.data_value', '=',0)
             ->where('load.assigned_to_user_id','!=', 0)
+            ->where('load.assigned_by','!=', 0)
+            ->where('load.tagging_load','=', 1)
             ->update(['load.data_value' =>'1']);
     }
      public static function getLoadNumbersyncstockmodel()
     {
          
         $query=DB::table('load')
-            ->join('load_details','load.load_code','=','load_details.load_code','RIGHT')
+            ->join('load_details','load.load_code','=','load_details.load_code','left')
             ->where('load.data_value', 0)
             ->where('load.assigned_to_user_id','!=', 0)
             ->update(['load.data_value' =>'1']);
@@ -451,7 +453,7 @@ where `wms_load_details`.`load_code` = '$loadCode'  ORDER BY wms_load_details.mo
 $rescue = DB::SELECT(DB::RAW("SELECT wms_box_details.box_code, wms_store_return_pick_details.move_doc_number, wms_store_return_pick_details.sku, wms_box_details.moved_qty, description
 from `wms_load_details` 
 LEFT join wms_box on wms_load_details.box_number = wms_box.box_code
-INNER JOIN wms_box_details on wms_box.box_code = wms_box_details.box_code
+left JOIN wms_box_details on wms_box.box_code = wms_box_details.box_code
 LEFT JOIN wms_store_return_pick_details on wms_box_details.subloc_transfer_id = wms_store_return_pick_details.id
 LEFT join wms_product_lists on wms_store_return_pick_details.sku = wms_product_lists.upc 
 where `wms_load_details`.`load_code` = '$loadCode' ORDER BY wms_store_return_pick_details.move_doc_number, wms_box_details.box_code ASC "));

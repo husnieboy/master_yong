@@ -18,7 +18,7 @@ class PurchaseOrderDetailsTable extends Migration {
 			// $table->integer('po_id')->default(0);
 			// $table->integer('sku');
 			$table->string('sku', 30); //revert this to bigInteger()
-			$table->integer('receiver_no');
+			$table->integer('receiver_no')->unique();
 			$table->integer('brand')->default(0);
 			$table->integer('division')->default(0);
 			$table->integer('quantity_ordered')->default(0);

@@ -183,12 +183,18 @@
  
 							<td style="text-align: center">    
 							 
+							 @if($value['data_display'] === 'Posted')
+							 <input style="text-align: center;" type="" name="" disabled value="{{$value['ship_date']}}">
+
+							 @else
 							{{ Form::open(array('url'=>'picking/updatedate', 'class'=>'form-signin', 'id'=>'form-pick-list', 'role'=>'form', 'method' => 'get')) }}
 							{{ Form::hidden('move_doc_number', $value['move_doc_number']) }}
                            <!--      {{ Form::text('filter_date_entry', date('M d, Y', strtotime($value['created_at'])), array('class'=>'span2', 'id'=>"filter_date_entry")) }} -->
                                 {{ Form::text('filter_date_entry',  ($value['ship_date']), array('class'=>'form-signin', 'placeholder'=>'', 'id'=>"readonly")) }}
                                 
 							{{ Form::close() }}
+
+							@endif
                             </div></td>
 						
 							<td >{{ Store::getStoreName($value['store_code']) }}</td>
@@ -218,7 +224,7 @@
 								<a style="width: 80px;" disabled="disabled" class="btn btn-danger">In Process</a>
 <a style="width: 140px;"   disabled class="btn btn-danger">{{$print_pagkaging_slip}}</a>
 								@else
-									<a style="width: 80px;" disabled="disabled" class="btn">{{ $button_close_picklist }}</a>
+									<a style="width: 80px;" disabled="disabled" class="btn"> Open </a>
 									
 <a style="width: 140px;"   disabled class="btn btn-danger">{{$print_pagkaging_slip}}</a>
 								

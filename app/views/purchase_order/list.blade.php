@@ -50,6 +50,13 @@
 								<span class="add-on"><i class="icon-th"></i></span>
 				        	</div>
 				        </div>
+			      		<div>
+				        	<span class="search-po-left-pane"> Invoice No.</span>
+				        	<span  class="search-po-right-pane">
+								{{ Form::text('filter_invoice_no', $filter_invoice_no, array('class'=>'login', 'placeholder'=>'', 'id'=>"filter_invoice_no")) }}
+								 </span>
+				        	 
+				        </div>
 				<!--
 				        <div>
 				        	<span class="search-po-left-pane">{{ $label_back_order }}</span>
@@ -196,6 +203,11 @@
 						<td><a href="{{ $url_detail . '&receiver_no=' . $po->receiver_no.'&filter_po_no='.$po->purchase_order_no.'&filter_shipment_reference_no='.$po->shipment_reference_no.'&total_qty='. $po->total_qty}}">{{ $po->purchase_order_no }}</a></td>
 						<td>{{$po->invoice_no}}</td>
 						<td >
+
+						@if($po->po_status == 5 || $po->po_status == 6)
+						<input style="text-align: center;" type=""  disabled name="" value="{{$po->shipment_reference_no}}">
+
+						@else
 						{{ Form::open(array('url'=>'purchase_order/shipment_input', 'class'=>'form-signin', 'id'=>'form-purchase-order', 'role'=>'form', 'method' => 'get')) }}
 
 						{{Form::hidden('purchase_order_no', $po->purchase_order_no)}}
@@ -204,6 +216,7 @@
                         
                          
                          {{ Form::close() }}
+                         @endif
 						 </td>
 									
 						<td>{{ $po-> total_qty}}</td>
@@ -218,12 +231,12 @@
 									<a style="width: 70px;" disabled="disabled" class="btn btn-danger">{{ $text_posted_po }}</a>
 
 								@elseif($po->po_status == 6)
-									  	<a style="width: 120px;" class="btn btn-success" disabled> Partial Received</a> 
+									  	<a style="width: 120px;" class="btn btn-inverse" disabled> Partial Received</a> 
 
 								@elseif ($po->data_display === 'Done')
 									<a style="width: 70px;" class="btn btn-success closePO" data-id="{{ $po->receiver_no }}">{{ $button_close_po }}</a>
 									
-									<a style="width: 120px;" class="btn btn-warning partialReceived" data-id="{{ $po->receiver_no }}">Partial Receive</a>
+									<a style="width: 120px;" class="btn btn-info partialReceived" data-id="{{ $po->receiver_no }}">Partial Receive</a>
 								<!-- 	<a class="btn btn-info" href="{{URL::to('purchase_order/partial_received?filter_po_no='.$po->purchase_order_no)}}">Partial Received</a> -->
 
 									<!-- <a style="width: 70px;" id="reopen" data-id="{{ $po->purchase_order_no }}" class="btn btn-primary">Reopen</a> -->
@@ -495,7 +508,7 @@ $(document).ready(function() {
 
     // Clear Form
     $('#clearForm').click(function() {
-    	$('#filter_po_no, #filter_receiver_no, #filter_supplier, #filter_shipment_reference_no').val('');
+    	$('#filter_po_no, #filter_receiver_no, #filter_supplier, #filter_shipment_reference_no, #filter_invoice_no').val('');
 		$('#filter_entry_date, #filter_back_order').val('');
 
 		$('select').val('');

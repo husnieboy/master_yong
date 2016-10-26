@@ -153,6 +153,29 @@ public function getList()
 	 	$ship_date 				= Input::get('filter_date_entry', null);
 		
 		Picklist::getUpdateDateMod($move_doc_number, $ship_date);
+
+
+		$users = User::getUsersFullname(Input::get('stock_piler'));
+
+
+			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
+			// $user = User::find(Input::get('stock_piler'));
+
+			$data_before = '';
+			$data_after = 'MTS no. : ' . $move_doc_number . ', Ship date : '.$ship_date;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.picking/packing"),
+							'action'		=> Config::get("audit_trail.ship_date_updated"),
+							'reference'		=> 'Ship date : ' . $ship_date,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
+			
 		return Redirect::to('picking/list?&move_doc_number='.$move_doc_number)->with('message','Ship Date Successfully Update!');
 	}
 	/*public function exportexcelCSV()
@@ -1206,7 +1229,7 @@ public function getList()
 			$data_after = 'Picklist MTS no.: ' . $docNo . ' assigned to ' . $fullname;
 
 			$arrParams = array(
-							'module'		=> Config::get('audit_trail_modules.picking'),
+							'module'		=> Config::get('audit_trail_modules.picking/packing'),
 							'action'		=> Config::get('audit_trail.assign_picklist'),
 							'reference'		=> 'MTS no. : ' . $docNo,
 							'data_before'	=> $data_before,
@@ -1241,7 +1264,7 @@ public function getList()
 
 		$status_options = Dataset::where("data_code", "=", "PICKLIST_STATUS_TYPE")->get()->lists("id", "data_value");
 		$picklist = Picklist::updateStatus($docNo, $status_options['closed']);
-		Picklist::getpostedtoStore($docNo,$boxcode);
+		//Picklist::getpostedtoStore($docNo,$boxcode);
 		
 		/*Pic klist::getpos tedtoBo xOrder($ doc No);*/
 		// AuditTrail
@@ -1251,9 +1274,9 @@ public function getList()
 		$data_after = 'Picklist Document No: ' . $docNo . ' posted by ' . $user->username;
 
 		$arrParams = array(
-						'module'		=> Config::get("audit_trail_modules.picking"),
+						'module'		=> Config::get("audit_trail_modules.picking/packing"),
 						'action'		=> Config::get("audit_trail.modify_picklist_status"),
-						'reference'		=> $docNo,
+						'reference'		=> 'MTS no: '.$docNo,
 						'data_before'	=> $data_before,
 						'data_after'	=> $data_after,
 						'user_id'		=> Auth::user()->id,
@@ -1271,13 +1294,14 @@ public function getList()
 		);
 		//create jda transaction for picklist closing
 		$isSuccess = JdaTransaction::insert($picklistParams);
-		Log::info(__METHOD__ .' dump: '.print_r($docNo,true));
+		Log::info(__METHOD__ .' jda transaction dump: '.print_r($isSuccess,true));
+		//Log::info(__METHOD__ .' dump: '.print_r($docNo,true));
 
 		// run daemon command: php app/cron/jda/classes/picklist.php
 		if( $isSuccess )
 		{
-			$daemon = "classes/picklist.php {$docNo}";
-			CommonHelper::execInBackground($daemon,'picklist');
+			$daemon = "Picking.php {$docNo}";
+			CommonHelper::execInBackgroundDEB($daemon,'picklist');
 		}
 
 		return Redirect::to('picking/list' . $this->setURL())->with('message', Lang::get('picking.text_success_posted'));

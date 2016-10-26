@@ -11,9 +11,12 @@ class picklist extends jdaCustomClass
 
 	public static $user = 'SYS';
 	public static $warehouseNo = "7000 ";
-	/*
+	
 
-13
+
+	 
+
+/*13
 19
 23
 ENTER warehouse_no: 9005
@@ -39,9 +42,9 @@ PER ITEM: Enter quantity_moved (loop)
 F7
 F10
 so on..
-F1
+F1*/
 
-	*/
+	 
 
 // Note: BUG ON ERROR UPDATE SYNC STATUS, exceeds
 	public function __construct() {
@@ -53,16 +56,23 @@ F1
 	{
 		parent::$jda->screenWait("Picking Menu");
 		parent::display(parent::$jda->screen,132);
-		parent::$jda->write5250(array(array("19",22,44)),ENTER,true);
+		parent::$jda->write5250(array(array("09",22,44)),ENTER,true);
 		echo "Entered: Picking Menu \n";
 	}
 
-	private static function enterApprovePicksIntoCartons()
+	private static function enterPickingMenu2()
 	{
-		parent::$jda->screenWait("Approve Picks into Cartons");
+		parent::$jda->screenWait(" ");
 		parent::display(parent::$jda->screen,132);
-		parent::$jda->write5250(array(array("23",22,44)),ENTER,true);
-		echo "Entered: Approve Picks into Cartons \n";
+		parent::$jda->write5250(array(array("01",22,44)),ENTER,true);
+		//echo "Entered: Approve Picks into Cartons \n";
+	}
+	private static function enterPickingMenu3()
+	{
+		parent::$jda->screenWait(" ");
+		parent::display(parent::$jda->screen,132);
+		parent::$jda->write5250(array(array("10",22,44)),ENTER,true);
+		//echo "Entered: Approve Picks into Cartons \n";
 	}
 
 	public function enterForm($data)

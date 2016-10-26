@@ -77,7 +77,7 @@
                       
                         <th>{{$col_received_quantity}}</th>
                         <th> VARIANCE </th>
-                        <th> NOT IN PO </th>
+                        <th> REMARKS </th>
                     </tr>
                 </thead>
                 @if( !CommonHelper::arrayHasValue($purchase_orders) )
@@ -98,10 +98,10 @@
                         <td>{{ $po->quantity_ordered }}</td> 
                           
 
-                        
-                        @if ( $po->po_status  == 4)
-  
-                        <td  style="text-align:  right;">                          
+               
+                        <td >     
+
+                        @if($po->po_status == 4 )                     
                        {{ Form::open(array('url'=>'purchase_order/details', 'class'=>'form-signin', 'id'=>'form-purchase-order', 'role'=>'form', 'method' => 'get')) }}
                        {{ Form::hidden('upc', $po->upc) }}
                         {{ Form::hidden('receiver_no',  Input::get('receiver_no', NULL)) }}
@@ -114,10 +114,17 @@
 
                         {{ Form::text('quantity', $po->quantity_delivered, array('class'=>'form-signin', 'placeholder'=>'', 'id'=>"readonly")) }}
                         {{ Form::close() }}
-                        </td>
+                        
                          @else
-                        <td style="text-align:  center;"><input type="" name="" disabled value="{{ $po->quantity_delivered }} "></td>
+                         
+                        <input style="text-align: center;" type="" name="" disabled value="{{ $po->quantity_delivered }} ">
+
+
                         @endif
+
+
+                        </td>
+                        
 
 
                         <td>{{ $po->quantity_delivered - $po->quantity_ordered  }}</td>

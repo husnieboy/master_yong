@@ -147,20 +147,7 @@
                         <td class="align-center">--</td>
                         <td class="align-center">--</td>
                     </tr>
-                    <tr>
-                        <td class="align-center font-12">{{ $module_store_return }}</td>
-                        <td class="align-center"><input type="checkbox" class="checkbox" name="permissions[]" value="CanAccessStoreReturn" @if(CommonHelper::arrayHasValue(Input::old('permissions')) && CommonHelper::valueInArray('CanAccessStoreReturn', Input::old('permissions')) ) checked="checked" @endif /></td>
-                        <td class="align-center">--</td>
-                        <td class="align-center">--</td>
-                        <td class="align-center">--</td>
-                        <td class="align-center"><input type="checkbox" class="checkbox" name="permissions[]" value="CanExportStoreReturn" @if(CommonHelper::arrayHasValue(Input::old('permissions')) && CommonHelper::valueInArray('CanExportStoreReturn', Input::old('permissions')) ) checked="checked" @endif /></td>
-                        <td class="align-center">--</td>
-                        <td class="align-center">--</td>
-                        <td class="align-center">--</td>
-                        <td class="align-center"><input type="checkbox" class="checkbox" name="permissions[]" value="CanAssignStoreReturn" @if(CommonHelper::arrayHasValue(Input::old('permissions')) && CommonHelper::valueInArray('CanAssignStoreReturn', Input::old('permissions')) ) checked="checked" @endif /></td>
-                        <td class="align-center">--</td>
-                        <td class="align-center"><input type="checkbox" class="checkbox" name="permissions[]" value="CanCloseStoreReturn" @if(CommonHelper::arrayHasValue(Input::old('permissions')) && CommonHelper::valueInArray('CanCloseStoreReturn', Input::old('permissions')) ) checked="checked" @endif /></td>
-                    </tr>
+                  <!--   -->
                     <!-- <tr>
                         <td class="align-center font-12">{{ $module_store_order_details }}</td>
                         <td class="align-center"><input type="checkbox" class="checkbox" name="permissions[]" value="CanAccessStoreOrderDetails" @if(CommonHelper::arrayHasValue(Input::old('permissions')) && CommonHelper::valueInArray('CanAccessStoreOrderDetails', Input::old('permissions')) ) checked="checked" @endif /></td>

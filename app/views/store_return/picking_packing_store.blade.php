@@ -131,13 +131,17 @@
 							<td><a href="{{$url_detail}}&picklist_doc={{$asdf['move_doc_number']}}&filter_stock_piler={{ $asdf['firstname'].' '.$asdf['lastname'] }}"> {{$asdf['move_doc_number']}}</a></td>
 
 							<td>
-						  
+						  	@if($asdf['data_display'] === 'Posted')
+						  	<input style="text-align: center;" type="" disabled="" name="" value="{{$asdf['ship_date']}}">
+						  	@else
 							{{ Form::open(array('url'=>'store_return/pickingstock', 'class'=>'form-signin', 'id'=>'form-pick-list', 'role'=>'form', 'method' => 'get')) }}
 							{{ Form::hidden('move_doc_number', $asdf['move_doc_number']) }}
                        
                              {{ Form::text('filter_date_entry',  ($asdf['ship_date']), array('class'=>'form-signin', 'placeholder'=>'', 'id'=>"readonly"), ['size' => '1x1']) }}
                           
 							{{ Form::close() }} 
+
+							@endif
                             <td>   {{ Store::getStoreName($asdf['from_store_code']) }}</td> 
                             <td> {{ Store::getStoreName($asdf['to_store_code']) }}</td> 
 							<td> {{$asdf['firstname'].' '.$asdf['lastname']}} </td> 
@@ -160,7 +164,7 @@
 								<a style="width: 78px;" disabled="disabled" class="btn btn-danger">In Process</a>
 <a style="width: 140px;"   disabled class="btn btn-danger">{{$print_pagkaging_slip}}</a>
 								@else
-									<a style="width: 60px;" disabled="disabled" class="btn">{{ $button_close_picklist }}</a>
+									<a style="width: 60px;" disabled="disabled" class="btn"> Open</a>
 									
 <a style="width: 140px;"   disabled class="btn btn-danger">{{$print_pagkaging_slip}}</a>
 								
@@ -176,7 +180,16 @@
 
 	 
 </div>
-
+<div class="clear">
+	<div class="div-paginate">
+		@if(CommonHelper::arrayHasValue($picklist) )
+		    <h6 class="paginate">
+				<span>{{ $picklist->appends($arrFilters)->links() }}&nbsp;</span>
+			</h6>
+		@else
+			&nbsp;
+		@endif
+	</div>
 
 
 <script type="text/javascript">

@@ -19,8 +19,8 @@ class PurchaseOrderListsTable extends Migration {
 			$table->integer('assigned_by');
 			$table->string('assigned_to_user_id', 30)->default(0);
 			$table->integer('vendor_id');
-			$table->integer('receiver_no');
-			$table->integer('purchase_order_no');
+			$table->integer('receiver_no')->unique();
+			$table->integer('purchase_order_no')->unique();
 			$table->string('destination', 10);
 			$table->string('carton_id', 30)->default("0");
 			$table->integer('total_qty');

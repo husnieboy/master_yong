@@ -85,7 +85,7 @@ return array(
 	'text_fail_unlock'			=> 'Unable to unlock the lock tag/s',
 	'text_confirm_change'		=> 'Are you sure you want to change type to store?',
 	'text_confirm_assign'		=> 'Assign selected items?',
-	'text_success_assign'		=> 'Successfully assigned the Picklist!',
+	'text_success_assign'		=> 'Successfully assigned the MTS number!',
 
 	'text_success_change'		=> 'You have successfully change picklist to store type',
 	'text_fail_change'			=> 'Unable to change picklist to type store',

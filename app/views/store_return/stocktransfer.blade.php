@@ -124,9 +124,9 @@
 
                             <td>{{ date("M d, Y", strtotime($value['date_entry'])) }} </td>
                         
-                            <td >{{$value['store_name']}} </td> 
+                            <td >{{ Store::getStoreName($value['from_store_code']) }} </td> 
 
-                            <td >{{$value['to_store_code']}} </td> 
+                            <td >{{ Store::getStoreName($value['to_store_code']) }} </td> 
                             <td>{{ $value['firstname'].' '. $value['lastname'] }}</td> 
                             <td>                            
                             @if($value['so_status'] === 23)

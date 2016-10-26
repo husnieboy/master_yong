@@ -25,8 +25,8 @@ class cronDB2 {
     }
 
 	public function posDescription()
-	{
-		$sql = "SELECT INUMBR, POS18 FROM INVDSC";
+	
+{		$sql = "SELECT INUMBR, POS18 FROM INVDSC";
 
 		$query_result 	= $this->instance->runSQL($sql,true);
 		$filename 		= 'pos_description';
@@ -226,10 +226,13 @@ LEFT JOIN TRFHDR ON WHSMVD.WHMVSR = TRFHDR.TRFBCH";//
 // POBON = Back order
 // //POUNTS = total_qty
 // POSHP1 = shipment reference no
+ 
 
-		$sql = "SELECT POMRCH.POMRCV, POMRCH.PONUMB, POMRCH.POUNTS , POMHDR.POSHP1, POEDAT FROM POMRCH 
-		LEFT JOIN POMHDR ON POMHDR.PONUMB = POMRCH.PONUMB 
-		WHERE POMRCH.POSTAT = 3";
+
+		$sql = "SELECT POMRCH.POMRCV, pomrch.poshpr, POMRCH.PONUMB, POMRCH.POUNTS ,   POMHDR.POEDAT 
+				FROM POMRCH 
+				LEFT JOIN POMHDR ON POMHDR.PONUMB = POMRCH.PONUMB 
+				WHERE POMRCH.POSTAT = 3";
 	/**	$ sql = "SELECT POMRCH.POVNUM, POMRCH.POMRCV, POMRCH.PONUMB, POMRCH.POLOC, POMHDR.POFOB, POMRCH.POUNTS, POMRCH.POBON, POMHDR.POSHP1, POMRCH.POSTAT
 		        FROM POMRCH
 		        LEFT JOIN POMHDR ON POMHDR.PONUMB = POMRCH.
@@ -240,7 +243,7 @@ LEFT JOIN TRFHDR ON WHSMVD.WHMVSR = TRFHDR.TRFBCH";//
 		$query_result 	= $this->instance->runSQL($sql,true);
 		$filename 		= 'purchase_order_header';
 	    // vendor_id | receiver_no | purchase_order_no | destination | po_status
-		$header_column 	= array( 'receiver_no', 'po_no',   'total_qty',  'shipment_reference_no', 'entry_date' );
+		$header_column 	= array( 'receiver_no', 'invoice_no', 'po_no',   'total_qty',  'entry_date' );
 		$this->_export($query_result, $filename, $header_column, __METHOD__);
 	}
 
@@ -400,31 +403,117 @@ WHERE POMRCH.POSTAT = 3 AND INVDPT.ISDEPT=0  AND INVDPT.ICLAS=0 AND INVDPT.ISCLA
 
 	public function storeReturn()
 	{
-		$sql = "SELECT trfbch, trfflc, trftlc
+		$sql = "SELECT trfhdr.trfbch, trfhdr.trfflc, trfhdr.trftlc
 				FROM trfhdr
-				WHERE trfsts = 'S' and trftlc != 8001 and trftyp =1  ";
+				left join tblstr on tblstr.strnum = trfhdr.trftlc 
+				WHERE trfsts = 'S' and trftlc != 8001 and trftyp = 1 and tblstr.strtyp='U'";
 
 		$query_result 	= $this->instance->runSQL($sql,true);
 
 		$filename 		= 'store_return_header';
 	    // so_no | store_name | so_status | order_date | created_at
-		$header_column = array('so_no','store_code', 'so_status');
+		$header_column = array('so_no', 'from_store_code', 'to_store_code');
 		$this->_export($query_result, $filename, $header_column, __METHOD__);
 	}
 
 	//to test
 	public function storeReturnDetails()
 	{
-		$sql = "SELECT TRFDTL.TRFBCH, INVUPC.IUPC,TRFDTL.TRFREQ, TRFDTL.TRFALC
+		$sql  = "SELECT trfdtl.trfbch, INVUPC.IUPC, trfdtl.trfshp
+				from trfhdr
+				left join trfdtl on trfhdr.trfbch = trfdtl.trfbch
+				INNER JOIN INVUPC ON TRFDTL.INUMBR = INVUPC.INUMBR
+				WHERE trfhdr.trfsts = 'S' and trfhdr.trftlc != 8001 and trfhdr.trftyp = 1";
+
+		/*$sql = "SELECT TRFDTL.TRFBCH, INVUPC.IUPC,TRFDTL.TRFREQ, TRFDTL.TRFALC
 				FROM TRFHDR
 				RIGHT JOIN TRFDTL ON TRFDTL.TRFBCH = TRFHDR.TRFBCH
 				INNER JOIN INVUPC ON TRFDTL.INUMBR = INVUPC.INUMBR
-				WHERE TRFDTL.TRFSTS = 'S' AND TRFDTL.TRFTLC = 7000";
+				WHERE TRFDTL.TRFSTS = 'S' AND TRFDTL.TRFTLC = 7000";*/
 
 		$query_result 	= $this->instance->runSQL($sql,true);
 		$filename 		= 'store_return_detail';
 	    // so_no | sku | ordered_qty | alloctated_qty | created_at
-		$header_column = array('so_no','sku', 'ordered_qty', 'allocated_qty');
+		$header_column = array('so_no','sku', 'delivered_qty');
+		$this->_export($query_result, $filename, $header_column, __METHOD__);
+	}
+
+	public function storeReturn_pick()
+	{
+		$sql = "SELECT trfhdr.trfbch
+				from trfhdr
+				left join tblstr on tblstr.strnum = trfhdr.trfflc
+				where trfsts = 'W'and tblstr.strtyp = 'U'";
+
+		$query_result 	= $this->instance->runSQL($sql,true);
+
+		$filename 		= 'store_return_pickinglist';
+	    // so_no | store_name | so_status | order_date | created_at
+		$header_column = array('move_doc_number');
+		$this->_export($query_result, $filename, $header_column, __METHOD__);
+	}
+
+	//to test
+	public function storeReturnDetails_pick()
+	{
+		$sql  = "SELECT trfhdr.trfbch, trfdtl.trftlc, INVUPC.IUPC, trfdtl.trfflc, trfdtl.trfreq
+				from trfhdr
+				left join trfdtl on trfhdr.trfbch = trfdtl.trfbch
+				left join tblstr on trfhdr.trfflc = tblstr.strnum
+				INNER JOIN INVUPC ON TRFDTL.INUMBR = INVUPC.INUMBR 
+				where trfhdr.trfsts = 'W'and tblstr.strtyp = 'U'";
+
+		/*$sql = "SELECT TRFDTL.TRFBCH, INVUPC.IUPC,TRFDTL.TRFREQ, TRFDTL.TRFALC
+				FROM TRFHDR
+				RIGHT JOIN TRFDTL ON TRFDTL.TRFBCH = TRFHDR.TRFBCH
+				INNER JOIN INVUPC ON TRFDTL.INUMBR = INVUPC.INUMBR
+				WHERE TRFDTL.TRFSTS = 'S' AND TRFDTL.TRFTLC = 7000";*/
+
+		$query_result 	= $this->instance->runSQL($sql,true);
+		$filename 		= 'store_return_pick_details';
+	    // so_no | sku | ordered_qty | alloctated_qty | created_at
+		$header_column = array('so_no','to_store_code', 'upc', 'from_store_code','quantity_to_pick');
+		$this->_export($query_result, $filename, $header_column, __METHOD__);
+	}
+	public function storeReturn_return()
+	{
+
+		$sql = "SELECT trfhdr.trfbch, trfhdr.trfflc
+				from trfhdr
+				where trfsts = 'S' and trftlc = 8001";
+
+	/*	$sql = "SELECT trfhdr.trfbch
+				from trfhdr
+				left join tblstr on tblstr.strnum = trfhdr.trfflc
+				where trfsts = 'W'and tblstr.strtyp = 'U'";*/
+
+		$query_result 	= $this->instance->runSQL($sql,true);
+
+		$filename 		= 'reverse_logistic';
+	    // so_no | store_name | so_status | order_date | created_at
+		$header_column = array('move_doc_number', 'from_store_code');
+		$this->_export($query_result, $filename, $header_column, __METHOD__);
+	}
+
+	//to test
+	public function storeReturnDetails_return()
+	{
+		$sql  = "SELECT trfhdr.trfbch, trfhdr.trfflc, invupc.iupc, trfdtl.trfshp
+				from trfhdr
+				left join trfdtl on trfhdr.trfbch = trfdtl.trfbch
+				INNER JOIN INVUPC ON TRFDTL.INUMBR = INVUPC.INUMBR 
+				where trfhdr.trfsts = 'S' and trfhdr.trftlc = 8001";
+
+		/*$sql = "SELECT TRFDTL.TRFBCH, INVUPC.IUPC,TRFDTL.TRFREQ, TRFDTL.TRFALC
+				FROM TRFHDR
+				RIGHT JOIN TRFDTL ON TRFDTL.TRFBCH = TRFHDR.TRFBCH
+				INNER JOIN INVUPC ON TRFDTL.INUMBR = INVUPC.INUMBR
+				WHERE TRFDTL.TRFSTS = 'S' AND TRFDTL.TRFTLC = 7000";*/
+
+		$query_result 	= $this->instance->runSQL($sql,true);
+		$filename 		= 'reverse_logistic_det';
+	    // so_no | sku | ordered_qty | alloctated_qty | created_at
+		$header_column = array('move_doc_number','upc','delivered_qty');
 		$this->_export($query_result, $filename, $header_column, __METHOD__);
 	}
 

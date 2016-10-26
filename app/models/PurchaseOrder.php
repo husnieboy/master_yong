@@ -278,7 +278,7 @@ quantity_ordered = 0 and wms_purchase_order_details.assigned_to_user_id != 0 and
 	public static function getsynctomobiledivision( )
 	{
 		$query=DB::table('purchase_order_lists')
-
+		 
             ->where('po_status', 1)
             ->orwhere('po_status', 2)
             ->update(['latest_mobile_sync_date' => date('Y-m-d H:i:s')]);
@@ -287,6 +287,10 @@ quantity_ordered = 0 and wms_purchase_order_details.assigned_to_user_id != 0 and
 			 
             ->where('po_status', 2)
             ->update(['po_status' =>'3']);
+
+           $query=DB::table('purchase_order_lists')
+           		->select('purchase_order_lists.*','purchase_order_details.*')
+           		->join('purchase_order_details','purchase_order_lists.receiver_no','=','purchase_order_lists.receiver_no','left');
 	}
 	public static function getPartialReceiveStatus($receiver_no, $division_id)
 	{
@@ -351,9 +355,9 @@ quantity_ordered = 0 and wms_purchase_order_details.assigned_to_user_id != 0 and
 			$query =DB::SELECT(DB::raw("SELECT wms_product_lists.sku, wms_purchase_order_details.upc, quantity_ordered, wms_purchase_order_details.quantity_delivered as qty, dept_number, purchase_order_no, wms_product_lists.short_description,wms_purchase_order_details.receiver_no, wms_purchase_order_lists.shipment_reference_no, wms_purchase_order_lists.invoice_no
 				from wms_purchase_order_details 
 				left join wms_purchase_order_lists on wms_purchase_order_details.receiver_no = wms_purchase_order_lists.receiver_no 
-				left join wms_product_lists on wms_purchase_order_details.upc  = wms_product_lists.upc  
-				WHERE wms_purchase_order_details.receiver_no='$receiver_no' 
-				and wms_purchase_order_lists.purchase_order_no='$po_no' and wms_purchase_order_details.quantity_delivered <> wms_purchase_order_details.quantity_ordered "));
+				left join wms_product_lists on wms_purchase_order_details.upc  = wms_product_lists.upc
+				       where purchase_order_no = '$po_no' and wms_purchase_order_details.receiver_no= '$receiver_no'
+			"));
 
  	return $query;
  
@@ -397,13 +401,13 @@ quantity_ordered = 0 and wms_purchase_order_details.assigned_to_user_id != 0 and
 	public static function getPOQuery($data = array())
 	{
 		$query = DB::table('purchase_order_lists')
-					->select('purchase_order_lists.*','purchase_order_lists.shipment_reference_no','purchase_order_lists.purchase_order_no','dataset.data_display','purchase_order_lists.po_status')
+					->select('purchase_order_lists.*','purchase_order_lists.shipment_reference_no','purchase_order_lists.invoice_no','purchase_order_lists.purchase_order_no','dataset.data_display','purchase_order_lists.po_status')
 					->join('dataset', 'purchase_order_lists.po_status', '=', 'dataset.id', 'LEFT');
 
 	
 	 	if( CommonHelper::hasValue($data['filter_po_no']) ) $query->where('purchase_order_no', 'LIKE', '%'.$data['filter_po_no'].'%');
 		if( CommonHelper::hasValue($data['filter_shipment_reference_no']) ) $query->where('purchase_order_lists.shipment_reference_no', 'LIKE', '%'.$data['filter_shipment_reference_no'].'%');
-	 
+	 	if( CommonHelper::hasValue($data['filter_invoice_no']) ) $query->where('purchase_order_lists.invoice_no', 'LIKE', '%'.$data['filter_invoice_no'].'%');
 		if( CommonHelper::hasValue($data['filter_entry_date']) ) $query->where('purchase_order_lists.entry_date', '=' ,$data['filter_entry_date'] );
 
 		if( CommonHelper::hasValue($data['filter_status']) && $data['filter_status'] !== 'default' ) $query->where('purchase_order_lists.po_status', '=', $data['filter_status']);

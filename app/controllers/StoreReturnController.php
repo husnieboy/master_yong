@@ -676,9 +676,24 @@ class StoreReturnController extends BaseController {
 			StoreReturnPickinglist::assignToStockPilerPickingmodel($docNo, $arrParams);
 
 			// AuditTrail
-			$users = User::getUsersFullname(Input::get('stock_piler'));
+			$users = User::getUsersFullname(Input::get('stock_piler')); 
 
-		 
+			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
+
+			$data_before = '';
+			$data_after = 'MTS no. : ' . $docNo . ' assigned to :' . $fullname;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.subloc_picking"),
+							'action'		=> Config::get('audit_trail.assign_subloc_pick'),
+							'reference'		=> 'MTS no.: '. $docNo,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
 			// AuditTrail
 		}
 
@@ -721,7 +736,7 @@ class StoreReturnController extends BaseController {
 			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
 
 			$data_before = '';
-			$data_after = 'Subloc MTS Receiving : ' . $soNo . ' assigned to :' . $fullname;
+			$data_after = 'Subloc MTS no. : ' . $soNo . ' assigned to :' . $fullname;
 
 			$arrParams = array(
 							'module'		=> Config::get("audit_trail_modules.subloc_receiving"),

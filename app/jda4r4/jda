@@ -16,7 +16,7 @@
 
 	if($action == 'po_receiving') {
 				
-		$jda_hostname = '172.16.1.2';
+		$jda_hostname = 'jdaprod2.rgoc.com.ph';
 		$jda_username = 'DEBSPGMR';
 		$jda_password = 'password';
 		$jda_library = 'MMRSTLIB';
@@ -37,7 +37,7 @@
 	elseif ($action == 'picking') 
 	{
 		# code...
-		$jda_hostname = '172.16.1.2';
+		$jda_hostname = 'jdaprod2.rgoc.com.ph';
 		$jda_username = 'DEBSPGMR';
 		$jda_password = 'password';
 		$jda_library = 'MMRSTLIB';

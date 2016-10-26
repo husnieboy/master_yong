@@ -1,6 +1,7 @@
 <?php	
 
 require_once 'library/jdatelnet.php';
+require_once 'library/eWMS.php';
 
 class POReceiving
 {
@@ -52,27 +53,26 @@ class POReceiving
 		$jda = $this->jda;
 	}
 	
-	public function DoReceiving($po_number, $invoice_number)
+	public function DoReceiving($receiver_no)
 	{
 		$jda = $this->jda;
 	 
 		$jda->write('08', true); $jda->show();
 		$jda->write('02', true); $jda->show();
 
-		$jda->write('02', true); $jda->show();
-		$jda->write(TAB, true); $jda->show();
-		$jda->write($po_number, true); $jda->show();
+		$jda->write('02', true); $jda->show(); 
+		$jda->write($receiver_no, true); $jda->show();
   
-	  $jda->write(TAB, true); $jda->show(); 
-	  $jda->write(ENTER, true); $jda->show();
-  $jda->write(TAB, true); $jda->show();
-	 	$jda->write('062216', true); $jda->show();
+	  	$jda->write(TAB, true); $jda->show(); 
+	 	$jda->write(ENTER, true); $jda->show();
+  		$jda->write(TAB, true); $jda->show();
+	 	$jda->write(date('m_d_y'), true); $jda->show();
  		$jda->write(END, true); $jda->show();
  	  	$jda->write(TAB, true); $jda->show();
  	  
  	  	$jda->write('SYS', true); $jda->show();
   
- 	  $jda->write($invoice_number, true); $jda->show();
+ 	  $jda->write('090909', true); $jda->show();
  	 $jda->write(TAB, true); $jda->show();
  
  	  $jda->write('1', true); $jda->show();

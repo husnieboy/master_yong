@@ -31,5 +31,20 @@ class Picking
 	public function DoPicking()
 	{
 		$jda = $this->jda;
+		$jda->write('09', true); $jda->show();
+		$jda->write('01', true); $jda->show();
+		$jda->write('10', true); $jda->show();
+		$jda->write('18', true); $jda->show();
+		$jda->write('8001', true); $jda->show();
+		$jda->write(TAB, true); $jda->show();
+		$jda->write($tl_number, true); $jda->show();
+		$jda->write(TAB, true); $jda->show();
+		$jda->write('SYS', true); $jda->show();
+		$jda->write(F6, true); $jda->show();
+		$jda->write(F7, true); $jda->show();
+		$jda->write(F7, true); $jda->show();
+		$jda->write(F10, true); $jda->show();
+		$jda->write(ENTER, true); $jda->show();
+		$jda->write(F7, true); $jda->show();
 	}
 }

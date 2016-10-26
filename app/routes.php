@@ -85,7 +85,7 @@ Route::group(array("before"=>"auth.basic"), function()
 	Route::get('purchase_order', 'PurchaseOrderController@showIndex');
 	Route::get('purchase_order/discrepansy', 'PurchaseOrderController@getlist1');
 	Route::post('purchase_order/assign_to_piler', 'PurchaseOrderController@assignToStockPiler');
-	Route::post('purchase_order/close_po', 'PurchaseOrderController@closePO');
+	Route::post('purchase_order/close_po', 'PurchaseOrderController@closePOsadfasdfasdfa');
 
 	Route::post('purchase_order/partialreceivebtn', [
 		'as' 		=> 'purchase_order/partialreceivebtn',

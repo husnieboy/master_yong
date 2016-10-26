@@ -654,6 +654,24 @@ protected $layout = "layouts.main";
 		ReverseLogistic::assignToStockPilerReverse($soNo, $arrParams);
 
 			// AuditTrail
+			$users = User::getUsersFullname(Input::get('stock_piler')); 
+
+			$fullname = implode(', ', array_map(function ($entry) { return $entry['name']; }, $users));
+
+			$data_before = '';
+			$data_after = 'MTS no. : ' . $soNo . ' assigned to :' . $fullname;
+
+			$arrParams = array(
+							'module'		=> Config::get("audit_trail_modules.return_wrhouse"),
+							'action'		=> Config::get('audit_trail.assign_return'),
+							'reference'		=> 'MTS no.: '. $soNo,
+							'data_before'	=> $data_before,
+							'data_after'	=> $data_after,
+							'user_id'		=> Auth::user()->id,
+							'created_at'	=> date('Y-m-d H:i:s'),
+							'updated_at'	=> date('Y-m-d H:i:s')
+							);
+			AuditTrail::addAuditTrail($arrParams);
 	 }
 
 

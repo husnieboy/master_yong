@@ -26,13 +26,16 @@ class cronEWMS {
 	public static $storeOrderDetails = 'wms_store_order_detail';
 	public static $storeReturn = 'wms_store_return';
 	public static $storeReturnDetail = 'wms_store_return_detail';
+	public static $storeReturn_pick = 'wms_store_return_pickinglist';
+	public static $storeReturnDetail_pick = 'wms_store_return_pick_details';
+	public static $reverse_logistic = 'wms_reverse_logistic';
+	public static $storeReturnDetail_return = 'wms_reverse_logistic_det';
 	public static $storeOrderLetdown = 'wms_store_order_letdown';
 
 
 	public function __construct() {
 		$this->instance = new eWMSMigration();
 	}
-
 	public function products() {
 		echo "\n Running method " . __METHOD__ . "\n";
 		$csvfile_pattern = "product";
@@ -43,7 +46,7 @@ class cronEWMS {
 		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
 		$this->instance->import($csvLocation, $eWMSTable, $columns);
 	}
-
+ 
 	public function slots() {
 		echo "\n Running method " . __METHOD__ . "\n";
 		$csvfile_pattern = "slot_master";
@@ -131,9 +134,9 @@ class cronEWMS {
 		echo "\n Running method " . __METHOD__ . "\n";
 		$csvfile_pattern = "purchase_order_header";
 		$eWMSTable = self::$purchaseOrder;
-		$columns = '( @receiver_no, @purchase_order_no, @total_qty,@shipment_reference_no, @entry_date)
-				set id="", receiver_no=@receiver_no, purchase_order_no=@purchase_order_no,    
-					total_qty=@total_qty, shipment_reference_no=@shipment_reference_no, entry_date=@entry_date';
+		$columns = '( @receiver_no, @invoice_no, @purchase_order_no, @total_qty,   @entry_date)
+				set   receiver_no=@receiver_no, invoice_no=@invoice_no, purchase_order_no=@purchase_order_no,    
+					total_qty=@total_qty,  entry_date=@entry_date';
 
 		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
 		$this->instance->import($csvLocation, $eWMSTable, $columns);
@@ -183,7 +186,7 @@ class cronEWMS {
 		echo "\n Running method " . __METHOD__ . "\n";
 		$csvfile_pattern = "store_return_header";
 		$eWMSTable = self::$storeReturn;
-		$columns = '(@so_no, @store_code, @so_status) set so_no=@so_no, store_code=@store_code';
+		$columns = '(@so_no, @from_store_code, @to_store_code) set so_no=@so_no, from_store_code=@from_store_code, to_store_code=@to_store_code';
 		// so_no | store_name | so_status | order_date | created_at
 
 		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
@@ -195,7 +198,54 @@ class cronEWMS {
 		echo "\n Running method " . __METHOD__ . "\n";
 		$csvfile_pattern = "store_return_detail";
 		$eWMSTable = self::$storeReturnDetail;
-		$columns = '(so_no, sku, delivered_qty)';
+		$columns = '(@so_no, @sku, @delivered_qty) set so_no=@so_no, sku=@sku, delivered_qty=@delivered_qty';
+
+		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
+		$this->instance->import($csvLocation, $eWMSTable, $columns);
+	}
+
+	//blank
+	public function storeReturn_pick() {
+
+		echo "\n Running method " . __METHOD__ . "\n";
+		$csvfile_pattern = "store_return_pickinglist";
+		$eWMSTable = self::$storeReturn_pick;
+		$columns = '(@so_no) set move_doc_number=@so_no';
+		// so_no | store_name | so_status | order_date | created_at
+
+		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
+		$this->instance->import($csvLocation, $eWMSTable, $columns);
+	}
+
+	//blank
+	public function storeReturnDetail_pick() {
+		echo "\n Running method " . __METHOD__ . "\n";
+		$csvfile_pattern = "store_return_pick_details";
+		$eWMSTable = self::$storeReturnDetail_pick;
+		$columns = '(@so_no, @to_store_code, @upc, @from_store_code, @quantity_to_pick) set move_doc_number=@so_no, to_store_code=@to_store_code, sku=@upc, from_store_code=@from_store_code, quantity_to_pick=@quantity_to_pick';
+
+		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
+		$this->instance->import($csvLocation, $eWMSTable, $columns);
+	}
+	//blank
+	public function storeReturn_return() {
+
+		echo "\n Running method " . __METHOD__ . "\n";
+		$csvfile_pattern = "reverse_logistic";
+		$eWMSTable = self::$reverse_logistic;
+		$columns = '(@so_no, @from_store_code) set move_doc_number=@so_no,  from_store_code=@from_store_code';
+		// so_no | store_name | so_status | order_date | created_at
+
+		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
+		$this->instance->import($csvLocation, $eWMSTable, $columns);
+	}
+
+	//blank
+	public function storeReturnDetail_return() {
+		echo "\n Running method " . __METHOD__ . "\n";
+		$csvfile_pattern = "reverse_logistic_det";
+		$eWMSTable = self::$storeReturnDetail_return;
+		$columns = '(@so_no,  @upc, @delivered_qty) set move_doc_number=@so_no,  upc=@upc, delivered_qty=@delivered_qty';
 
 		$csvLocation = $this->instance->getLatestCsv($csvfile_pattern);
 		$this->instance->import($csvLocation, $eWMSTable, $columns);

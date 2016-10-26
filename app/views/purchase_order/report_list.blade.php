@@ -1,5 +1,5 @@
 <style type="text/css">
-	.contents2 {margin-top: 10px; width: 100%; font-family: Courier;}
+	.contents2 {margin-top: 10px; width: 100%;}
 	.contents2 th, .contents td { padding: 2px; margin: 0; }
 	.contents2 th {text-align: left; padding: 5px;}
 	.contents2 th {background-color: #F0F0F0}
@@ -61,7 +61,7 @@
 						<th style="text-align: center"   rowspan="2">UPC</th>
 					<th  style="text-align: center" colspan="2">Quantity</th>
 					<th style="text-align: center" rowspan="2">Discrepancy <br>(Short/Over)</th>
-					<th style="text-align: center" rowspan="2">Invoice No.</th>
+		<!-- 			<th style="text-align: center" rowspan="2">Invoice No.</th> -->
 					<th style="text-align: center" rowspan="2">Remarks</th>
 				</tr>
 					<tr>
@@ -96,7 +96,7 @@
 						<td style="text-align: center" >{{$asdf->quantity_ordered}}</td> 
 						<td style="text-align: center" >{{$asdf->qty}}</td> 
 						<td style="text-align: center" > {{$asdf->qty - $asdf->quantity_ordered}}</td>
-						<td style="text-align: center" >{{$asdf->invoice_no}}</td> 
+		<!-- 				<td style="text-align: center" >{{$asdf->invoice_no}}</td>  -->
 						<td style="text-align: center" ></td> 
 
 					<?php  		$qty_ord+=$asdf->quantity_ordered;  
@@ -123,7 +123,7 @@
 						<td style="text-align: center" ><?php echo $qty_rcv; ?></td> 
 						<td style="text-align: center" ><?php echo $total; ?> </td>
 						<td style="text-align: center" > </td> 
-						<td> </td> 
+				<!-- 		<td> </td>  -->
 				</tr>
 		 
 	</table>

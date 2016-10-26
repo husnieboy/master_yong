@@ -66,7 +66,7 @@ td.underline {padding-bottom: 0; }
  @foreach( $records as $asdf )
 			<div style="width:400px; height:250px; border: solid 1px #000; padding: 10px;" >
 			<h1 style="text-align: center; margin-bottom: 0px;">RSCI Package Slip</h1>
-			   <p style="text-align: center; margin-top: 1px; margin-bottom: 1px"> <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG("$asdf->box_code", "EAN13",3,50) . '" alt="barcode"   />'; ?></p> <div style="text-align: center; margin-top: 1px; " > {{$asdf->box_code}}</div>
+			   <p style="text-align: center; margin-top: 1px; margin-bottom: 1px"> <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG("$asdf->box_code", "C128A",3,50) . '" alt="barcode"   />'; ?></p> <div style="text-align: center; margin-top: 1px; " > {{$asdf->box_code}}</div>
 			  
 		  
 					  <table class="contents"  >
